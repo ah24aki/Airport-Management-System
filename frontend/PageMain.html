@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyBase Airport ERP</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+        :root {
+            --primary-dark: #0f1729;
+            --secondary-dark: #1a2540;
+            --tertiary-dark: #2d3e5f;
+            --accent-blue: #2563eb;
+            --accent-teal: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --accent-orange: #f97316;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --light-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-light: #f1f5f9;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', 'Poppins', sans-serif;
+            margin: 0; padding: 0;
+            display: flex; height: 100vh;
+            background-color: var(--light-bg);
+            overflow: hidden;
+            color: var(--text-primary);
+        }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            color: var(--text-light);
+            display: flex; flex-direction: column;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.15);
+            z-index: 10; position: relative; overflow: hidden;
+        }
+        .sidebar::before {
+            content: '';
+            position: absolute; top: -50%; right: -50%;
+            width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(37,99,235,0.1) 0%, transparent 70%);
+            animation: bgShift 8s ease-in-out infinite; z-index: 0;
+        }
+        @keyframes bgShift { 0%,100%{transform:translate(0,0)} 50%{transform:translate(20px,-20px)} }
+
+        .sidebar-header {
+            padding: 30px 20px; text-align: center;
+            background: linear-gradient(135deg, #1a2540, #2d3e5f);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: relative; z-index: 1;
+        }
+        .sidebar-header h2 {
+            margin: 0; font-size: 24px; font-weight: 700;
+            background: linear-gradient(135deg, #06b6d4, #2563eb);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; font-family: 'Poppins', sans-serif;
+        }
+        .sidebar-header p { margin: 8px 0 0; font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; }
+
+        .nav-menu {
+            display: flex; flex-direction: column;
+            padding: 15px 0; overflow-y: auto;
+            position: relative; z-index: 1; flex: 1;
+        }
+        .nav-menu::-webkit-scrollbar { width: 6px; }
+        .nav-menu::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
+
+        .nav-btn {
+            padding: 14px 20px; background: none; border: none;
+            color: #cbd5e1; text-align: left; font-size: 14px;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            border-left: 4px solid transparent; margin: 0 12px; border-radius: 8px;
+            font-weight: 500; position: relative;
+        }
+        .nav-btn::before {
+            content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+            background: linear-gradient(180deg, var(--accent-blue), var(--accent-teal));
+            border-radius: 0 4px 4px 0; opacity: 0; transition: opacity 0.3s;
+        }
+        .nav-btn:hover { background: rgba(255,255,255,0.1); color: white; transform: translateX(5px); }
+        .nav-btn.active { background: linear-gradient(135deg, rgba(37,99,235,0.2), rgba(6,182,212,0.2)); color: white; border-left: none; font-weight: 600; }
+        .nav-btn.active::before { opacity: 1; }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+        .top-navbar {
+            background: white; padding: 18px 35px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-bottom: 1px solid var(--border-color);
+        }
+        .top-navbar h3 { margin: 0; color: var(--text-primary); font-size: 22px; font-weight: 600; font-family: 'Poppins', sans-serif; }
+
+        .content-area { flex: 1; padding: 35px; overflow-y: auto; background: linear-gradient(135deg, #f8fafc, #f1f5f9); }
+        .content-area::-webkit-scrollbar { width: 8px; }
+        .content-area::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 4px; }
+
+        .section-container { display: none; animation: fadeUp 0.5s cubic-bezier(0.4,0,0.2,1); }
+        .section-container.active { display: block; }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+        #dashboard { background: linear-gradient(135deg, rgba(37,99,235,0.05), rgba(6,182,212,0.05)); border-radius: 20px; padding: 40px; min-height: 80vh; }
+
+        .card {
+            background: var(--card-bg); padding: 28px; border-radius: 15px;
+            box-shadow: var(--shadow-md); margin-bottom: 28px;
+            transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            border: 1px solid var(--border-color); position: relative; overflow: hidden;
+        }
+        .card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-teal), var(--accent-purple));
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); }
+        .card:hover::before { opacity: 1; }
+
+        /* ===== EDIT MODE ===== */
+        .card.edit-mode {
+            border-color: var(--warning-color) !important;
+            box-shadow: 0 0 0 3px rgba(245,158,11,0.2), var(--shadow-lg) !important;
+            transform: translateY(-3px);
+        }
+        .card.edit-mode::before {
+            background: linear-gradient(90deg, var(--warning-color), var(--accent-orange)) !important;
+            opacity: 1 !important;
+        }
+        .card.edit-mode .card-title { color: var(--warning-color); }
+
+        .stat-card { text-align: center; background: linear-gradient(135deg, var(--card-bg), #f8fafc); padding: 30px 25px !important; }
+        .stat-card h1 { font-size: 48px; margin: 15px 0; font-weight: 700; font-family: 'Poppins', sans-serif; }
+        .stat-card p { color: var(--text-secondary); font-weight: 600; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; font-size: 12px; }
+
+        .card-title {
+            margin-top: 0; color: var(--text-primary);
+            font-size: 18px; font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 15px; margin-bottom: 25px;
+            font-family: 'Poppins', sans-serif; transition: color 0.3s;
+        }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px; margin-bottom: 25px; }
+        .input-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+        input, select {
+            padding: 12px 15px; border: 2px solid var(--border-color);
+            border-radius: 10px; font-size: 14px; font-family: 'Inter', sans-serif;
+            outline: none; transition: all 0.3s; background: var(--card-bg); color: var(--text-primary);
+        }
+        input:focus, select:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        input::placeholder { color: #94a3b8; }
+
+        .btn-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+        .btn-submit {
+            padding: 13px 32px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-teal));
+            color: white; border: none; border-radius: 10px;
+            cursor: pointer; font-weight: 600; font-size: 14px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            transition: all 0.3s; box-shadow: 0 4px 15px rgba(37,99,235,0.3);
+            font-family: 'Poppins', sans-serif;
+        }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37,99,235,0.4); }
+
+        .btn-submit.update-btn {
+            background: linear-gradient(135deg, var(--warning-color), var(--accent-orange));
+            box-shadow: 0 4px 15px rgba(245,158,11,0.3);
+        }
+        .btn-submit.update-btn:hover { box-shadow: 0 6px 20px rgba(245,158,11,0.4); }
+
+        .btn-cancel {
+            padding: 13px 24px; background: #f1f5f9;
+            color: var(--text-secondary); border: 2px solid var(--border-color);
+            border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 14px;
+            transition: all 0.3s; font-family: 'Poppins', sans-serif; display: none;
+        }
+        .btn-cancel:hover { background: #e2e8f0; color: var(--text-primary); }
+        .btn-cancel.visible { display: inline-block; }
+
+        .table-container { max-height: 450px; overflow-y: auto; border-radius: 12px; border: 1px solid var(--border-color); }
+        .table-container::-webkit-scrollbar { width: 8px; }
+        .table-container::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 4px; }
+
+        table { width: 100%; border-collapse: collapse; background: var(--card-bg); text-align: left; }
+        th {
+            background: linear-gradient(135deg, var(--primary-dark), var(--secondary-dark));
+            color: white; padding: 16px 18px; position: sticky; top: 0;
+            font-weight: 600; font-size: 13px; letter-spacing: 0.5px; z-index: 5;
+        }
+        td { padding: 14px 18px; border-bottom: 1px solid var(--border-color); font-size: 14px; transition: background 0.2s; }
+        tr:hover td { background: #f9fafb; }
+
+        .uppercase-text { text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; }
+        .action-btn { background: none; border: none; cursor: pointer; font-size: 16px; margin-right: 4px; transition: transform 0.2s; padding: 4px; border-radius: 6px; }
+        .action-btn:hover { transform: scale(1.25); }
+
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
+        .toast {
+            min-width: 320px; padding: 16px 20px; border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 15px; font-weight: 500;
+            animation: slideIn 0.4s cubic-bezier(0.4,0,0.2,1), slideOut 0.4s cubic-bezier(0.4,0,0.2,1) 4.6s forwards;
+            pointer-events: all;
+        }
+        @keyframes slideIn { from{transform:translateX(400px);opacity:0} to{transform:translateX(0);opacity:1} }
+        @keyframes slideOut { from{transform:translateX(0);opacity:1} to{transform:translateX(400px);opacity:0} }
+        .toast.success { background: linear-gradient(135deg,rgba(16,185,129,0.95),rgba(10,155,105,0.95)); color:white; }
+        .toast.success::before { content:'✅'; font-size:22px; }
+        .toast.error { background: linear-gradient(135deg,rgba(239,68,68,0.95),rgba(220,38,38,0.95)); color:white; }
+        .toast.error::before { content:'❌'; font-size:22px; }
+        .toast.warning { background: linear-gradient(135deg,rgba(245,158,11,0.95),rgba(217,119,6,0.95)); color:white; }
+        .toast.warning::before { content:'✏️'; font-size:22px; }
+        .toast.info { background: linear-gradient(135deg,rgba(37,99,235,0.95),rgba(6,182,212,0.95)); color:white; }
+        .toast.info::before { content:'ℹ️'; font-size:22px; }
+
+        /* ===== CUSTOM CONFIRM MODAL ===== */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 99999;
+            background: rgba(15,23,41,0.7);
+            backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .modal-overlay.show { opacity: 1; pointer-events: all; }
+
+        .modal-box {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 36px 32px 28px;
+            width: 100%; max-width: 420px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+            border: 1px solid var(--border-color);
+            transform: scale(0.85) translateY(20px);
+            transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+            text-align: center; position: relative;
+        }
+        .modal-overlay.show .modal-box { transform: scale(1) translateY(0); }
+
+        .modal-icon {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: linear-gradient(135deg, rgba(239,68,68,0.15), rgba(239,68,68,0.05));
+            border: 2px solid rgba(239,68,68,0.25);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; margin: 0 auto 20px;
+        }
+        .modal-title {
+            font-size: 20px; font-weight: 700; color: var(--text-primary);
+            font-family: 'Poppins', sans-serif; margin: 0 0 10px;
+        }
+        .modal-message {
+            font-size: 14px; color: var(--text-secondary); line-height: 1.6;
+            margin: 0 0 28px;
+        }
+        .modal-id-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(239,68,68,0.05));
+            border: 1px solid rgba(239,68,68,0.2);
+            color: var(--danger-color); font-weight: 700;
+            padding: 3px 12px; border-radius: 20px; font-size: 13px;
+            margin-top: 6px;
+        }
+        .modal-btn-row { display: flex; gap: 12px; justify-content: center; }
+        .modal-btn-cancel {
+            flex: 1; padding: 13px; background: #f1f5f9;
+            color: var(--text-secondary); border: 2px solid var(--border-color);
+            border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 14px;
+            font-family: 'Poppins', sans-serif; transition: all 0.2s;
+        }
+        .modal-btn-cancel:hover { background: #e2e8f0; color: var(--text-primary); transform: translateY(-1px); }
+        .modal-btn-confirm {
+            flex: 1; padding: 13px;
+            background: linear-gradient(135deg, var(--danger-color), #c0392b);
+            color: white; border: none; border-radius: 12px;
+            cursor: pointer; font-weight: 600; font-size: 14px;
+            font-family: 'Poppins', sans-serif;
+            box-shadow: 0 4px 15px rgba(239,68,68,0.35);
+            transition: all 0.2s;
+        }
+        .modal-btn-confirm:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(239,68,68,0.45); }
+        .modal-btn-confirm:active { transform: translateY(0); }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width:100%; height:auto; max-height:60px; flex-direction:row; align-items:center; }
+            .sidebar-header { padding:12px 20px; border-bottom:none; }
+            .sidebar-header p { display:none; }
+            .nav-menu { flex-direction:row; overflow-x:auto; flex:1; padding:0; }
+            .nav-btn { padding:12px 18px; white-space:nowrap; margin:0 5px; }
+            .main-content { height:calc(100vh - 60px); }
+            .content-area { padding:20px; }
+            .form-grid { grid-template-columns:1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Custom Confirm Modal -->
+<div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+        <div class="modal-icon" id="modalIcon">🗑️</div>
+        <div class="modal-title" id="modalTitle">Confirm Delete</div>
+        <div class="modal-message" id="modalMessage">Are you sure you want to delete this record?</div>
+        <div class="modal-btn-row">
+            <button class="modal-btn-cancel" onclick="closeModal()">✖ Cancel</button>
+            <button class="modal-btn-confirm" id="modalConfirmBtn">🗑️ Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <h2>✈️ SkyBase ERP</h2>
+        <p>Admin Dashboard</p>
+    </div>
+    <div class="nav-menu">
+        <button class="nav-btn active" onclick="showSection('dashboard',this)">📊 Dashboard Home</button>
+        <button class="nav-btn" onclick="showSection('passengers',this)">👥 Passengers</button>
+        <button class="nav-btn" onclick="showSection('airlines',this)">🏢 Airlines</button>
+        <button class="nav-btn" onclick="showSection('airplanes',this)">✈️ Airplanes</button>
+        <button class="nav-btn" onclick="showSection('flights',this)">🛫 Flights</button>
+        <button class="nav-btn" onclick="showSection('terminals',this)">🏗️ Terminals</button>
+        <button class="nav-btn" onclick="showSection('gates',this)">🚪 Gates</button>
+        <button class="nav-btn" onclick="showSection('boarding',this)">🎟️ Boarding Passes</button>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="top-navbar">
+        <h3 id="current-section-title">Dashboard Home</h3>
+        <span style="font-size:13px;color:var(--text-secondary);">👤 Admin</span>
+    </div>
+
+    <div class="content-area">
+
+        <!-- DASHBOARD -->
+        <div id="dashboard" class="section-container active">
+            <div class="card" style="background:linear-gradient(135deg,rgba(37,99,235,0.08),rgba(6,182,212,0.08));border-left:6px solid var(--accent-blue);padding:35px;">
+                <h1 style="margin:0;color:var(--primary-dark);font-family:'Poppins',sans-serif;font-size:32px;">Welcome back, Captain Ahmed! ✈️</h1>
+                <p style="font-size:16px;color:var(--text-secondary);margin:12px 0 0;font-weight:500;">SkyBase System is online and running at peak efficiency.</p>
+            </div>
+            <div class="form-grid" style="margin-top:30px;">
+                <div class="card stat-card"><p style="color:var(--accent-blue);">🛫 ACTIVE FLIGHTS</p><h1 id="stat_flights" style="color:var(--accent-blue);">0</h1></div>
+                <div class="card stat-card"><p style="color:var(--success-color);">👥 TOTAL PASSENGERS</p><h1 id="stat_passengers" style="color:var(--success-color);">0</h1></div>
+                <div class="card stat-card"><p style="color:var(--warning-color);">🚪 READY GATES</p><h1 id="stat_gates" style="color:var(--warning-color);">0</h1></div>
+                <div class="card stat-card"><p style="color:var(--accent-purple);">🏢 AIRLINES</p><h1 id="stat_airlines" style="color:var(--accent-purple);">0</h1></div>
+            </div>
+            <div class="card" style="margin-top:30px;">
+                <h3 class="card-title">⚡ Quick Actions</h3>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:15px;">
+                    <button class="btn-submit" onclick="showSection('flights',document.querySelectorAll('.nav-btn')[4])">📊 View Flights</button>
+                    <button class="btn-submit" onclick="showSection('passengers',document.querySelectorAll('.nav-btn')[1])" style="background:linear-gradient(135deg,var(--accent-teal),var(--accent-purple));">➕ Add Passenger</button>
+                    <button class="btn-submit" onclick="showSection('terminals',document.querySelectorAll('.nav-btn')[5])" style="background:linear-gradient(135deg,var(--accent-purple),var(--accent-orange));">🏢 Terminals</button>
+                    <button class="btn-submit" onclick="showSection('gates',document.querySelectorAll('.nav-btn')[6])" style="background:linear-gradient(135deg,var(--accent-orange),var(--success-color));">🚪 Gates</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PASSENGERS -->
+        <div id="passengers" class="section-container">
+            <div class="card" id="p_formCard">
+                <h3 class="card-title" id="p_formTitle">✈️ Add New Passenger</h3>
+                <div class="form-grid">
+                    <div class="input-group"><label>👤 First Name</label><input type="text" id="p_firstName" placeholder="Ahmed"></div>
+                    <div class="input-group"><label>👤 Last Name</label><input type="text" id="p_lastName" placeholder="Al-Gabri"></div>
+                    <div class="input-group"><label>📄 Passport Number</label><input type="text" id="p_passport" class="uppercase-text" placeholder="ABC123456"></div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-submit" id="p_saveBtn" onclick="savePassenger()">💾 Save Passenger</button>
+                    <button class="btn-cancel" id="p_cancelBtn" onclick="cancelEdit('p')">✖ Cancel</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">📋 Registered Passengers</h3>
+                <input type="text" id="searchPassengers" onkeyup="filterTable('searchPassengers','p_tableBody')" placeholder="🔍 Search..." style="width:100%;margin-bottom:15px;padding:10px;border-radius:8px;border:1px solid var(--border-color);">
+                <div class="table-container">
+                    <table><thead><tr><th>ID</th><th>First Name</th><th>Last Name</th><th>Passport No.</th><th>Actions</th></tr></thead>
+                    <tbody id="p_tableBody"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- AIRLINES -->
+        <div id="airlines" class="section-container">
+            <div class="card" id="a_formCard">
+                <h3 class="card-title" id="a_formTitle">🏢 Add New Airline</h3>
+                <div class="form-grid">
+                    <div class="input-group"><label>✈️ Airline Name</label><input type="text" id="a_name" placeholder="Turkish Airlines"></div>
+                    <div class="input-group"><label>🔖 Airline Code</label><input type="text" id="a_code" class="uppercase-text" placeholder="TK"></div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-submit" id="a_saveBtn" onclick="saveAirline()">💾 Save Airline</button>
+                    <button class="btn-cancel" id="a_cancelBtn" onclick="cancelEdit('a')">✖ Cancel</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">📊 Airlines List</h3>
+                <div class="table-container">
+                    <table><thead><tr><th>ID</th><th>Name</th><th>Code</th><th>Actions</th></tr></thead>
+                    <tbody id="a_tableBody"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- AIRPLANES -->
+        <div id="airplanes" class="section-container">
+            <div class="card" id="pl_formCard">
+                <h3 class="card-title" id="pl_formTitle">✈️ Add New Airplane</h3>
+                <div class="form-grid">
+                    <div class="input-group"><label>🛫 Model Name</label><input type="text" id="pl_model" placeholder="Boeing 737"></div>
+                    <div class="input-group"><label>👥 Capacity</label><input type="number" id="pl_capacity" placeholder="180"></div>
+                    <div class="input-group"><label>🏢 Airline ID</label><input type="number" id="pl_airlineId" placeholder="1"></div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-submit" id="pl_saveBtn" onclick="saveAirplane()">💾 Save Airplane</button>
+                    <button class="btn-cancel" id="pl_cancelBtn" onclick="cancelEdit('pl')">✖ Cancel</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">📋 Aircraft Fleet</h3>
+                <div class="table-container">
+                    <table><thead><tr><th>ID</th><th>Model</th><th>Capacity</th><th>Airline ID</th><th>Actions</th></tr></thead>
+                    <tbody id="pl_tableBody"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- FLIGHTS -->
+        <div id="flights" class="section-container">
+            <div class="card" id="f_formCard">
+                <h3 class="card-title" id="f_formTitle">🛫 Schedule New Flight</h3>
+                <div class="form-grid">
+                    <div class="input-group"><label>✈️ Flight Number</label><input type="text" id="f_number" placeholder="TK1903" class="uppercase-text"></div>
+                    <div class="input-group"><label>🛫 Departure Time</label><input type="datetime-local" id="f_depTime"></div>
+                    <div class="input-group"><label>🛬 Arrival Time</label><input type="datetime-local" id="f_arrTime"></div>
+                    <div class="input-group">
+                        <label>📊 Status</label>
+                        <select id="f_status">
+                            <option value="">-- Select Status --</option>
+                            <option value="ON_TIME">ON_TIME</option>
+                            <option value="DELAYED">DELAYED</option>
+                            <option value="CANCELLED">CANCELLED</option>
+                            <option value="BOARDING">BOARDING</option>
+                            <option value="DEPARTED">DEPARTED</option>
+                            <option value="LANDED">LANDED</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label>✈️ Airplane ID</label><input type="number" id="f_airplaneId" placeholder="1"></div>
+                    <div class="input-group"><label>🚪 Gate ID</label><input type="number" id="f_gateId" placeholder="1"></div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-submit" id="f_saveBtn" onclick="saveFlight()">💾 Save Flight</button>
+                    <button class="btn-cancel" id="f_cancelBtn" onclick="cancelEdit('f')">✖ Cancel</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">📅 Flight Schedule</h3>
+                <div class="table-container">
+                    <table><thead><tr><th>ID</th><th>Flight No.</th><th>Status</th><th>Departure</th><th>Arrival</th><th>Airplane ID</th><th>Gate ID</th><th>Actions</th></tr></thead>
+                    <tbody id="f_tableBody"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TERMINALS -->
+        <div id="terminals" class="section-container">
+            <div class="card" id="t_formCard">
+                <h3 class="card-title" id="t_formTitle">🏢 Add New Terminal</h3>
+                <div class="form-grid">
+                    <div class="input-group"><label>🏭 Terminal Name</label><input type="text" id="t_name" placeholder="Terminal A"></div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-submit" id="t_saveBtn" onclick="saveTerminal()">💾 Save Terminal</button>
+                    <button class="btn-cancel" id="t_cancelBtn" onclick="cancelEdit('t')">✖ Cancel</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">🏗️ Terminal List</h3>
+                <div class="table-container">
+                    <table><thead><tr><th>ID</th><th>Terminal Name</th><th>Actions</th></tr></thead>
+                    <tbody id="t_tableBody"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- GATES -->
+        <div id="gates" class="section-container">
+            <div class="card" id="g_formCard">
+                <h3 class="card-title" id="g_formTitle">🚪 Add New Gate</h3>
+                <div class="form-grid">
+                    <div class="input-group"><label>🔢 Gate Number</label><input type="text" id="g_number" placeholder="A-12" class="uppercase-text"></div>
+                    <div class="input-group">
+                        <label>✅ Is Available?</label>
+                        <select id="g_available">
+                            <option value="true">✅ Yes</option>
+                            <option value="false">❌ No</option>
+                        </select>
+                    </div>
+                    <div class="input-group"><label>🏢 Terminal ID</label><input type="number" id="g_terminalId" placeholder="1"></div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-submit" id="g_saveBtn" onclick="saveGate()">💾 Save Gate</button>
+                    <button class="btn-cancel" id="g_cancelBtn" onclick="cancelEdit('g')">✖ Cancel</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">🗺️ Gates Configuration</h3>
+                <div class="table-container">
+                    <table><thead><tr><th>ID</th><th>Gate No.</th><th>Available</th><th>Terminal ID</th><th>Actions</th></tr></thead>
+                    <tbody id="g_tableBody"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOARDING PASSES -->
+        <div id="boarding" class="section-container">
+            <div class="card" id="b_formCard">
+                <h3 class="card-title" id="b_formTitle">🎫 Issue Boarding Pass</h3>
+                <div class="form-grid">
+                    <div class="input-group"><label>💺 Seat Number</label><input type="text" id="b_seat" placeholder="12A" class="uppercase-text"></div>
+                    <div class="input-group"><label>👤 Passenger ID</label><input type="number" id="b_passId" placeholder="1"></div>
+                    <div class="input-group"><label>✈️ Flight ID</label><input type="number" id="b_flightId" placeholder="1"></div>
+                </div>
+                <div class="btn-row">
+                    <button class="btn-submit" id="b_saveBtn" onclick="saveBoardingPass()">💾 Save Pass</button>
+                    <button class="btn-cancel" id="b_cancelBtn" onclick="cancelEdit('b')">✖ Cancel</button>
+                </div>
+            </div>
+            <div class="card">
+                <h3 class="card-title">🎟️ Boarding Passes List</h3>
+                <div class="table-container">
+                    <table><thead><tr><th>ID</th><th>Seat</th><th>Passenger ID</th><th>Flight ID</th><th>Actions</th></tr></thead>
+                    <tbody id="b_tableBody"></tbody></table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    const BASE_URL = "http://localhost:8080";
+
+    // ── Editing state for each entity ──
+    const editingId = { p:null, a:null, pl:null, f:null, t:null, g:null, b:null };
+
+    // ── Default form titles & save button labels ──
+    const TITLES = {
+        p:  ['✈️ Add New Passenger',     '💾 Save Passenger'],
+        a:  ['🏢 Add New Airline',        '💾 Save Airline'],
+        pl: ['✈️ Add New Airplane',       '💾 Save Airplane'],
+        f:  ['🛫 Schedule New Flight',    '💾 Save Flight'],
+        t:  ['🏢 Add New Terminal',       '💾 Save Terminal'],
+        g:  ['🚪 Add New Gate',           '💾 Save Gate'],
+        b:  ['🎫 Issue Boarding Pass',    '💾 Save Pass'],
+    };
+
+    // ── Toast ──
+    function showNotification(message, type = 'info', duration = 5000) {
+        const c = document.getElementById('toastContainer');
+        const t = document.createElement('div');
+        t.className = `toast ${type}`;
+        t.textContent = message;
+        c.appendChild(t);
+        setTimeout(() => t.remove(), duration);
+    }
+
+    // ── Enter edit mode (highlight form card, change button) ──
+    function enterEditMode(prefix, id, titleText) {
+        editingId[prefix] = id;
+        document.getElementById(prefix + '_formCard').classList.add('edit-mode');
+        document.getElementById(prefix + '_formTitle').textContent = titleText;
+        const saveBtn = document.getElementById(prefix + '_saveBtn');
+        saveBtn.textContent = '✏️ Update';
+        saveBtn.classList.add('update-btn');
+        document.getElementById(prefix + '_cancelBtn').classList.add('visible');
+        document.getElementById(prefix + '_formCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        showNotification('Edit mode — modify fields and click Update.', 'warning');
+    }
+
+    // ── Cancel edit: reset everything ──
+    function cancelEdit(prefix) {
+        editingId[prefix] = null;
+        const card = document.getElementById(prefix + '_formCard');
+        card.classList.remove('edit-mode');
+        card.querySelectorAll('input').forEach(i => i.value = '');
+        card.querySelectorAll('select').forEach(s => s.selectedIndex = 0);
+        document.getElementById(prefix + '_formTitle').textContent = TITLES[prefix][0];
+        const saveBtn = document.getElementById(prefix + '_saveBtn');
+        saveBtn.textContent = TITLES[prefix][1];
+        saveBtn.classList.remove('update-btn');
+        document.getElementById(prefix + '_cancelBtn').classList.remove('visible');
+    }
+
+    // ── Generic fetch → save/update ──
+    function apiSave(prefix, url, method, data, onSuccess) {
+        fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(res => {
+            if (res.ok) {
+                showNotification(method === 'PUT' ? '✅ Updated successfully!' : '✅ Saved successfully!', 'success');
+                cancelEdit(prefix);
+                onSuccess();
+            } else {
+                res.text().then(err => showNotification('❌ Error: ' + err, 'error'));
+            }
+        }).catch(() => showNotification('❌ Connection error! Is the backend running?', 'error'));
+    }
+
+    // ── Navigation ──
+    window.onload = updateDashboardStats;
+
+    function showSection(sectionId, btnEl) {
+        document.querySelectorAll('.section-container').forEach(s => s.classList.remove('active'));
+        document.getElementById(sectionId).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        btnEl.classList.add('active');
+        document.getElementById('current-section-title').innerText = btnEl.innerText.replace(/[^\x00-\x7F]/g,'').trim();
+        const loaders = {
+            passengers: fetchPassengers, airlines: fetchAirlines, airplanes: fetchAirplanes,
+            flights: fetchFlights, terminals: fetchTerminals, gates: fetchGates,
+            boarding: fetchBoardingPasses, dashboard: updateDashboardStats
+        };
+        if (loaders[sectionId]) loaders[sectionId]();
+    }
+
+    function updateDashboardStats() {
+        fetch(`${BASE_URL}/flights`).then(r=>r.json()).then(d=>document.getElementById('stat_flights').innerText=d.length).catch(()=>{});
+        fetch(`${BASE_URL}/passengers`).then(r=>r.json()).then(d=>document.getElementById('stat_passengers').innerText=d.length).catch(()=>{});
+        fetch(`${BASE_URL}/airlines`).then(r=>r.json()).then(d=>document.getElementById('stat_airlines').innerText=d.length).catch(()=>{});
+        fetch(`${BASE_URL}/gates`).then(r=>r.json()).then(d=>document.getElementById('stat_gates').innerText=d.filter(g=>g.isAvailable).length).catch(()=>{});
+    }
+
+    function filterTable(inputId, tbodyId) {
+        const filter = document.getElementById(inputId).value.toUpperCase();
+        document.getElementById(tbodyId).querySelectorAll('tr').forEach(row => {
+            row.style.display = row.innerText.toUpperCase().includes(filter) ? '' : 'none';
+        });
+    }
+
+    // ════════════════════════════════════════
+    // 1. PASSENGERS
+    // ════════════════════════════════════════
+    function fetchPassengers() {
+        fetch(`${BASE_URL}/passengers`).then(r=>r.json()).then(data => {
+            const tbody = document.getElementById('p_tableBody');
+            tbody.innerHTML = '';
+            data.forEach(i => {
+                const tr = document.createElement('tr');
+                const td1 = document.createElement('td'); td1.textContent = i.id;
+                const td2 = document.createElement('td'); td2.textContent = i.firstName;
+                const td3 = document.createElement('td'); td3.textContent = i.lastName;
+                const td4 = document.createElement('td'); td4.textContent = i.passportNumber; td4.className='uppercase-text';
+                const td5 = document.createElement('td');
+                td5.innerHTML = `<button class="action-btn" title="Edit" onclick="editPassenger(${i.id},'${escQ(i.firstName)}','${escQ(i.lastName)}','${escQ(i.passportNumber)}')">✏️</button>
+                                 <button class="action-btn" title="Delete" onclick="deletePassenger(${i.id})">🗑️</button>`;
+                tr.append(td1,td2,td3,td4,td5);
+                tbody.appendChild(tr);
+            });
+            updateDashboardStats();
+        }).catch(e => console.error(e));
+    }
+
+    function editPassenger(id, fName, lName, passport) {
+        document.getElementById('p_firstName').value = fName;
+        document.getElementById('p_lastName').value  = lName;
+        document.getElementById('p_passport').value  = passport;
+        enterEditMode('p', id, `✏️ Edit Passenger #${id}`);
+    }
+
+    function savePassenger() {
+        const firstName      = document.getElementById('p_firstName').value.trim();
+        const lastName       = document.getElementById('p_lastName').value.trim();
+        const passportNumber = document.getElementById('p_passport').value.trim();
+        if (!firstName || !lastName || !passportNumber) { showNotification('⚠️ Please fill all fields!','error'); return; }
+        const isEdit = editingId.p !== null;
+        apiSave('p', isEdit ? `${BASE_URL}/passengers/${editingId.p}` : `${BASE_URL}/passengers`,
+                isEdit ? 'PUT' : 'POST', { firstName, lastName, passportNumber }, fetchPassengers);
+    }
+
+    function deletePassenger(id) {
+        showConfirmModal(
+            '🗑️ Delete Passenger',
+            `Are you sure you want to delete <span class="modal-id-badge">Passenger #${id}</span><br>This action cannot be undone.`,
+            () => {
+                fetch(`${BASE_URL}/passengers/${id}`, {method:'DELETE'})
+                    .then(r => r.ok ? (showNotification('🗑️ Passenger deleted!','success'), fetchPassengers())
+                                     : showNotification('❌ Cannot delete — linked to boarding pass.','error'))
+                    .catch(() => showNotification('❌ Connection error!','error'));
+            }
+        );
+    }
+
+    // ════════════════════════════════════════
+    // 2. AIRLINES
+    // ════════════════════════════════════════
+    function fetchAirlines() {
+        fetch(`${BASE_URL}/airlines`).then(r=>r.json()).then(data => {
+            const tbody = document.getElementById('a_tableBody');
+            tbody.innerHTML = '';
+            data.forEach(i => {
+                const tr = document.createElement('tr');
+                const td1=document.createElement('td'); td1.textContent=i.id;
+                const td2=document.createElement('td'); td2.textContent=i.name;
+                const td3=document.createElement('td'); td3.textContent=i.code; td3.className='uppercase-text';
+                const td4=document.createElement('td');
+                td4.innerHTML=`<button class="action-btn" onclick="editAirline(${i.id},'${escQ(i.name)}','${escQ(i.code)}')">✏️</button>
+                               <button class="action-btn" onclick="deleteAirline(${i.id})">🗑️</button>`;
+                tr.append(td1,td2,td3,td4); tbody.appendChild(tr);
+            });
+            updateDashboardStats();
+        }).catch(e=>console.error(e));
+    }
+
+    function editAirline(id, name, code) {
+        document.getElementById('a_name').value = name;
+        document.getElementById('a_code').value = code;
+        enterEditMode('a', id, `✏️ Edit Airline #${id}`);
+    }
+
+    function saveAirline() {
+        const name = document.getElementById('a_name').value.trim();
+        const code = document.getElementById('a_code').value.trim();
+        if (!name || !code) { showNotification('⚠️ Please fill all fields!','error'); return; }
+        const isEdit = editingId.a !== null;
+        apiSave('a', isEdit ? `${BASE_URL}/airlines/${editingId.a}` : `${BASE_URL}/airlines`,
+                isEdit ? 'PUT' : 'POST', { name, code }, fetchAirlines);
+    }
+
+    function deleteAirline(id) {
+        showConfirmModal(
+            '🗑️ Delete Airline',
+            `Are you sure you want to delete <span class="modal-id-badge">Airline #${id}</span><br>This action cannot be undone.`,
+            () => {
+                fetch(`${BASE_URL}/airlines/${id}`, {method:'DELETE'})
+                    .then(r => r.ok ? (showNotification('🗑️ Airline deleted!','success'), fetchAirlines())
+                                     : showNotification('❌ Cannot delete — may have airplanes linked.','error'))
+                    .catch(() => showNotification('❌ Connection error!','error'));
+            }
+        );
+    }
+
+    // ════════════════════════════════════════
+    // 3. AIRPLANES
+    // ════════════════════════════════════════
+    function fetchAirplanes() {
+        fetch(`${BASE_URL}/airplanes`).then(r=>r.json()).then(data => {
+            const tbody = document.getElementById('pl_tableBody');
+            tbody.innerHTML = '';
+            data.forEach(i => {
+                const tr=document.createElement('tr');
+                const td1=document.createElement('td'); td1.textContent=i.id;
+                const td2=document.createElement('td'); td2.textContent=i.modelName;
+                const td3=document.createElement('td'); td3.textContent=i.capacity;
+                const td4=document.createElement('td'); td4.textContent=i.airlineId;
+                const td5=document.createElement('td');
+                td5.innerHTML=`<button class="action-btn" onclick="editAirplane(${i.id},'${escQ(i.modelName)}',${i.capacity},${i.airlineId})">✏️</button>
+                               <button class="action-btn" onclick="deleteAirplane(${i.id})">🗑️</button>`;
+                tr.append(td1,td2,td3,td4,td5); tbody.appendChild(tr);
+            });
+        }).catch(e=>console.error(e));
+    }
+
+    function editAirplane(id, modelName, capacity, airlineId) {
+        document.getElementById('pl_model').value     = modelName;
+        document.getElementById('pl_capacity').value  = capacity;
+        document.getElementById('pl_airlineId').value = airlineId;
+        enterEditMode('pl', id, `✏️ Edit Airplane #${id}`);
+    }
+
+    function saveAirplane() {
+        const modelName = document.getElementById('pl_model').value.trim();
+        const capacity  = document.getElementById('pl_capacity').value.trim();
+        const airlineId = document.getElementById('pl_airlineId').value.trim();
+        if (!modelName || !capacity || !airlineId) { showNotification('⚠️ Please fill all fields!','error'); return; }
+        const isEdit = editingId.pl !== null;
+        apiSave('pl', isEdit ? `${BASE_URL}/airplanes/${editingId.pl}` : `${BASE_URL}/airplanes`,
+                isEdit ? 'PUT' : 'POST', { modelName, capacity:parseInt(capacity), airlineId:parseInt(airlineId) }, fetchAirplanes);
+    }
+
+    function deleteAirplane(id) {
+        showConfirmModal(
+            '🗑️ Delete Airplane',
+            `Are you sure you want to delete <span class="modal-id-badge">Airplane #${id}</span><br>This action cannot be undone.`,
+            () => {
+                fetch(`${BASE_URL}/airplanes/${id}`, {method:'DELETE'})
+                    .then(r => r.ok ? (showNotification('🗑️ Airplane deleted!','success'), fetchAirplanes())
+                                     : showNotification('❌ Cannot delete — linked to flights.','error'))
+                    .catch(() => showNotification('❌ Connection error!','error'));
+            }
+        );
+    }
+
+    // ════════════════════════════════════════
+    // 4. FLIGHTS
+    // ════════════════════════════════════════
+    function fetchFlights() {
+        fetch(`${BASE_URL}/flights`).then(r=>r.json()).then(data => {
+            const tbody = document.getElementById('f_tableBody');
+            tbody.innerHTML = '';
+            data.forEach(i => {
+                const dep = i.departureTime ? i.departureTime.replace('T',' ') : '-';
+                const arr = i.arrivalTime   ? i.arrivalTime.replace('T',' ')   : '-';
+                const tr=document.createElement('tr');
+                const td1=document.createElement('td'); td1.textContent=i.id;
+                const td2=document.createElement('td'); td2.textContent=i.flightNumber; td2.className='uppercase-text';
+                const td3=document.createElement('td'); td3.textContent=i.status||'-'; td3.className='uppercase-text';
+                const td4=document.createElement('td'); td4.textContent=dep;
+                const td5=document.createElement('td'); td5.textContent=arr;
+                const td6=document.createElement('td'); td6.textContent=i.airplaneId;
+                const td7=document.createElement('td'); td7.textContent=i.gateId;
+                const td8=document.createElement('td');
+                const depRaw = i.departureTime||''; const arrRaw = i.arrivalTime||'';
+                td8.innerHTML=`<button class="action-btn" onclick="editFlight(${i.id},'${escQ(i.flightNumber)}','${depRaw}','${arrRaw}','${i.status||''}',${i.airplaneId},${i.gateId})">✏️</button>
+                               <button class="action-btn" onclick="deleteFlight(${i.id})">🗑️</button>`;
+                tr.append(td1,td2,td3,td4,td5,td6,td7,td8); tbody.appendChild(tr);
+            });
+            updateDashboardStats();
+        }).catch(e=>console.error(e));
+    }
+
+    function editFlight(id, flightNumber, depTime, arrTime, status, airplaneId, gateId) {
+        document.getElementById('f_number').value     = flightNumber;
+        document.getElementById('f_depTime').value    = depTime ? depTime.substring(0,16) : '';
+        document.getElementById('f_arrTime').value    = arrTime ? arrTime.substring(0,16) : '';
+        document.getElementById('f_status').value     = status;
+        document.getElementById('f_airplaneId').value = airplaneId;
+        document.getElementById('f_gateId').value     = gateId;
+        enterEditMode('f', id, `✏️ Edit Flight #${id}`);
+    }
+
+    function saveFlight() {
+        const flightNumber = document.getElementById('f_number').value.trim();
+        let   depTime      = document.getElementById('f_depTime').value;
+        let   arrTime      = document.getElementById('f_arrTime').value;
+        const status       = document.getElementById('f_status').value;
+        const airplaneId   = document.getElementById('f_airplaneId').value.trim();
+        const gateId       = document.getElementById('f_gateId').value.trim();
+
+        if (!flightNumber||!depTime||!arrTime||!status||!airplaneId||!gateId) {
+            showNotification('⚠️ Please fill all fields!','error'); return;
+        }
+        if (new Date(arrTime) <= new Date(depTime)) {
+            showNotification('⚠️ Arrival time must be after departure time!','error'); return;
+        }
+        if (depTime.length===16) depTime+=':00';
+        if (arrTime.length===16) arrTime+=':00';
+
+        const isEdit = editingId.f !== null;
+        apiSave('f', isEdit ? `${BASE_URL}/flights/${editingId.f}` : `${BASE_URL}/flights`,
+                isEdit ? 'PUT' : 'POST',
+                { flightNumber, departureTime:depTime, arrivalTime:arrTime, status, airplaneId:parseInt(airplaneId), gateId:parseInt(gateId) },
+                fetchFlights);
+    }
+
+    function deleteFlight(id) {
+        showConfirmModal(
+            '🗑️ Delete Flight',
+            `Are you sure you want to delete <span class="modal-id-badge">Flight #${id}</span><br>This action cannot be undone.`,
+            () => {
+                fetch(`${BASE_URL}/flights/${id}`, {method:'DELETE'})
+                    .then(r => r.ok ? (showNotification('🗑️ Flight deleted!','success'), fetchFlights())
+                                     : showNotification('❌ Cannot delete — has boarding passes.','error'))
+                    .catch(() => showNotification('❌ Connection error!','error'));
+            }
+        );
+    }
+
+    // ════════════════════════════════════════
+    // 5. TERMINALS
+    // ════════════════════════════════════════
+    function fetchTerminals() {
+        fetch(`${BASE_URL}/terminals`).then(r=>r.json()).then(data => {
+            const tbody = document.getElementById('t_tableBody');
+            tbody.innerHTML = '';
+            data.forEach(i => {
+                const tr=document.createElement('tr');
+                const td1=document.createElement('td'); td1.textContent=i.id;
+                const td2=document.createElement('td'); td2.textContent=i.name;
+                const td3=document.createElement('td');
+                td3.innerHTML=`<button class="action-btn" onclick="editTerminal(${i.id},'${escQ(i.name)}')">✏️</button>
+                               <button class="action-btn" onclick="deleteTerminal(${i.id})">🗑️</button>`;
+                tr.append(td1,td2,td3); tbody.appendChild(tr);
+            });
+        }).catch(e=>console.error(e));
+    }
+
+    function editTerminal(id, name) {
+        document.getElementById('t_name').value = name;
+        enterEditMode('t', id, `✏️ Edit Terminal #${id}`);
+    }
+
+    function saveTerminal() {
+        const name = document.getElementById('t_name').value.trim();
+        if (!name) { showNotification('⚠️ Please enter terminal name!','error'); return; }
+        const isEdit = editingId.t !== null;
+        apiSave('t', isEdit ? `${BASE_URL}/terminals/${editingId.t}` : `${BASE_URL}/terminals`,
+                isEdit ? 'PUT' : 'POST', { name }, fetchTerminals);
+    }
+
+    function deleteTerminal(id) {
+        showConfirmModal(
+            '🗑️ Delete Terminal',
+            `Are you sure you want to delete <span class="modal-id-badge">Terminal #${id}</span><br>This action cannot be undone.`,
+            () => {
+                fetch(`${BASE_URL}/terminals/${id}`, {method:'DELETE'})
+                    .then(r => r.ok ? (showNotification('🗑️ Terminal deleted!','success'), fetchTerminals())
+                                     : showNotification('❌ Cannot delete — has gates linked.','error'))
+                    .catch(() => showNotification('❌ Connection error!','error'));
+            }
+        );
+    }
+
+    // ════════════════════════════════════════
+    // 6. GATES
+    // ════════════════════════════════════════
+    function fetchGates() {
+        fetch(`${BASE_URL}/gates`).then(r=>r.json()).then(data => {
+            const tbody = document.getElementById('g_tableBody');
+            tbody.innerHTML = '';
+            data.forEach(i => {
+                const tr=document.createElement('tr');
+                const td1=document.createElement('td'); td1.textContent=i.id;
+                const td2=document.createElement('td'); td2.textContent=i.gateNumber; td2.className='uppercase-text';
+                const td3=document.createElement('td'); td3.textContent=i.isAvailable?'✅ Yes':'❌ No';
+                const td4=document.createElement('td'); td4.textContent=i.terminalId;
+                const td5=document.createElement('td');
+                td5.innerHTML=`<button class="action-btn" onclick="editGate(${i.id},'${escQ(i.gateNumber)}',${i.isAvailable},${i.terminalId})">✏️</button>
+                               <button class="action-btn" onclick="deleteGate(${i.id})">🗑️</button>`;
+                tr.append(td1,td2,td3,td4,td5); tbody.appendChild(tr);
+            });
+            updateDashboardStats();
+        }).catch(e=>console.error(e));
+    }
+
+    function editGate(id, gateNumber, isAvailable, terminalId) {
+        document.getElementById('g_number').value     = gateNumber;
+        document.getElementById('g_available').value  = String(isAvailable);
+        document.getElementById('g_terminalId').value = terminalId;
+        enterEditMode('g', id, `✏️ Edit Gate #${id}`);
+    }
+
+    function saveGate() {
+        const gateNumber  = document.getElementById('g_number').value.trim();
+        const isAvailable = document.getElementById('g_available').value === 'true';
+        const terminalId  = document.getElementById('g_terminalId').value.trim();
+        if (!gateNumber||!terminalId) { showNotification('⚠️ Please fill all fields!','error'); return; }
+        const isEdit = editingId.g !== null;
+        apiSave('g', isEdit ? `${BASE_URL}/gates/${editingId.g}` : `${BASE_URL}/gates`,
+                isEdit ? 'PUT' : 'POST', { gateNumber, isAvailable, terminalId:parseInt(terminalId) }, fetchGates);
+    }
+
+    function deleteGate(id) {
+        showConfirmModal(
+            '🗑️ Delete Gate',
+            `Are you sure you want to delete <span class="modal-id-badge">Gate #${id}</span><br>This action cannot be undone.`,
+            () => {
+                fetch(`${BASE_URL}/gates/${id}`, {method:'DELETE'})
+                    .then(r => r.ok ? (showNotification('🗑️ Gate deleted!','success'), fetchGates())
+                                     : showNotification('❌ Cannot delete — linked to flights.','error'))
+                    .catch(() => showNotification('❌ Connection error!','error'));
+            }
+        );
+    }
+
+    // ════════════════════════════════════════
+    // 7. BOARDING PASSES
+    // ════════════════════════════════════════
+    function fetchBoardingPasses() {
+        fetch(`${BASE_URL}/boarding-passes`).then(r=>r.json()).then(data => {
+            const tbody = document.getElementById('b_tableBody');
+            tbody.innerHTML = '';
+            data.forEach(i => {
+                const tr=document.createElement('tr');
+                const td1=document.createElement('td'); td1.textContent=i.id;
+                const td2=document.createElement('td'); td2.textContent=i.seatNumber; td2.className='uppercase-text';
+                const td3=document.createElement('td'); td3.textContent=i.passengerId;
+                const td4=document.createElement('td'); td4.textContent=i.flightId;
+                const td5=document.createElement('td');
+                td5.innerHTML=`<button class="action-btn" onclick="editBoardingPass(${i.id},'${escQ(i.seatNumber)}',${i.passengerId},${i.flightId})">✏️</button>
+                               <button class="action-btn" onclick="deleteBoardingPass(${i.id})">🗑️</button>`;
+                tr.append(td1,td2,td3,td4,td5); tbody.appendChild(tr);
+            });
+        }).catch(e=>console.error(e));
+    }
+
+    function editBoardingPass(id, seatNumber, passengerId, flightId) {
+        document.getElementById('b_seat').value     = seatNumber;
+        document.getElementById('b_passId').value   = passengerId;
+        document.getElementById('b_flightId').value = flightId;
+        enterEditMode('b', id, `✏️ Edit Boarding Pass #${id}`);
+    }
+
+    function saveBoardingPass() {
+        const seatNumber  = document.getElementById('b_seat').value.trim();
+        const passengerId = document.getElementById('b_passId').value.trim();
+        const flightId    = document.getElementById('b_flightId').value.trim();
+        if (!seatNumber||!passengerId||!flightId) { showNotification('⚠️ Please fill all fields!','error'); return; }
+        const isEdit = editingId.b !== null;
+        apiSave('b', isEdit ? `${BASE_URL}/boarding-passes/${editingId.b}` : `${BASE_URL}/boarding-passes`,
+                isEdit ? 'PUT' : 'POST', { seatNumber, passengerId:parseInt(passengerId), flightId:parseInt(flightId) }, fetchBoardingPasses);
+    }
+
+    function deleteBoardingPass(id) {
+        showConfirmModal(
+            '🗑️ Delete Boarding Pass',
+            `Are you sure you want to delete <span class="modal-id-badge">Boarding Pass #${id}</span><br>This action cannot be undone.`,
+            () => {
+                fetch(`${BASE_URL}/boarding-passes/${id}`, {method:'DELETE'})
+                    .then(r => r.ok ? (showNotification('🗑️ Boarding pass deleted!','success'), fetchBoardingPasses())
+                                     : showNotification('❌ Error deleting boarding pass.','error'))
+                    .catch(() => showNotification('❌ Connection error!','error'));
+            }
+        );
+    }
+
+    // ════════════════════════════════════════
+    // CUSTOM CONFIRM MODAL
+    // ════════════════════════════════════════
+    function showConfirmModal(title, message, onConfirm) {
+        document.getElementById('modalTitle').textContent = title;
+        document.getElementById('modalMessage').innerHTML = message;
+
+        // استبدال الزر بنسخة جديدة لإزالة أي event listeners قديمة
+        const oldBtn = document.getElementById('modalConfirmBtn');
+        const newBtn = oldBtn.cloneNode(true);
+        oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+        newBtn.addEventListener('click', () => {
+            closeModal();
+            onConfirm();
+        });
+
+        const overlay = document.getElementById('confirmModal');
+        overlay.onclick = (e) => { if (e.target === overlay) closeModal(); };
+        document.onkeydown = (e) => { if (e.key === 'Escape') closeModal(); };
+        overlay.classList.add('show');
+    }
+
+    function closeModal() {
+        document.getElementById('confirmModal').classList.remove('show');
+        document.onkeydown = null;
+    }
+
+    // ── Escape single quotes in strings used inside onclick attributes ──
+    function escQ(str) {
+        return String(str).replace(/'/g, "\\'");
+    }
+</script>
+</body>
+</html>
