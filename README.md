@@ -8,6 +8,12 @@ A full-stack airport management app: a **Spring Boot REST API** backed by **Post
 
 <sub>Screenshots use sample data.</sub>
 
+## Video presentation
+
+A walkthrough of the project's web services, in English:
+
+<a href="https://youtu.be/d71DbnL-1-I"><img src="https://img.youtube.com/vi/d71DbnL-1-I/hqdefault.jpg" width="480" alt="Airport Management System – video presentation" /></a>
+
 ## What it does
 
 - **Full CRUD for 7 resources**, each with its own controller, service and repository
